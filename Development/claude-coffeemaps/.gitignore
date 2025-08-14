@@ -15,6 +15,13 @@ build/
 .env.test.local
 .env.production.local
 
+# API Keys and secrets
+**/config/keys.js
+**/config/secrets.js
+**/*secret*
+**/*key*
+**/api-keys.*
+
 # IDE files
 .vscode/
 .idea/
