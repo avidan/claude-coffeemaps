@@ -1,0 +1,173 @@
+.coffee-list {
+  padding: 1rem;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.list-header {
+  margin-bottom: 1.5rem;
+}
+
+.list-header h2 {
+  color: #2c1810;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.shop-count {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.shops-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.shop-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #f0f0f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.shop-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.shop-header h3 {
+  color: #2c1810;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.rating {
+  color: #ff9500;
+  font-size: 1.1rem;
+}
+
+.shop-location {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.location-text {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.distance {
+  color: #8b6914;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.shop-notes {
+  font-style: italic;
+  color: #444;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-left: 4px solid #8b6914;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.9rem;
+}
+
+.quality-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.quality-badge {
+  background: #f0f8ff;
+  color: #2c1810;
+  padding: 0.3rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #8b6914;
+}
+
+.shop-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.directions-btn {
+  background: #8b6914;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: 1;
+}
+
+.directions-btn:hover {
+  background: #a67c00;
+}
+
+.no-shops {
+  text-align: center;
+  color: #666;
+  margin-top: 3rem;
+}
+
+.no-shops p {
+  margin: 0.5rem 0;
+}
+
+/* Desktop layout */
+@media (min-width: 768px) {
+  .shops-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
+  
+  .coffee-list {
+    padding: 2rem;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .coffee-list {
+    height: calc(100vh - 140px);
+    padding: 1rem 0.5rem;
+  }
+  
+  .shop-card {
+    padding: 1rem;
+  }
+  
+  .shop-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .shop-location {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
