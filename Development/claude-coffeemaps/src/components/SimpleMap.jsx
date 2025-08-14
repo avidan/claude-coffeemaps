@@ -21,19 +21,17 @@ export default function SimpleMap({ shops, userLocation, selectedCity }) {
   const center = getMapCenter()
   const centerString = `${center[0]},${center[1]}`
 
-  // Create Google Maps embed URL
+  // Create Google Maps URL showing coffee shops in the area
   const getGoogleMapsUrl = () => {
-    let baseUrl = `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dw8Q4R8Dg9dJyE&center=${centerString}&zoom=12`
-    
-    // Add markers for coffee shops
-    if (shops.length > 0) {
-      const markers = shops.slice(0, 10).map(shop => 
-        `${shop.coordinates[0]},${shop.coordinates[1]}`
-      ).join('|')
-      baseUrl += `&markers=${markers}`
+    if (shops.length === 0) {
+      return `https://maps.google.com/maps?q=coffee+shops+near+${centerString}&t=&z=12&ie=UTF8&iwloc=&output=embed`
     }
+
+    // Create a URL that searches for the specific coffee shops by name and location
+    const firstShop = shops[0]
+    const searchQuery = `${firstShop.name.replace(/\s+/g, '+')}+${firstShop.city.replace(/\s+/g, '+')}`
     
-    return baseUrl
+    return `https://maps.google.com/maps?q=${searchQuery}&t=&z=12&ie=UTF8&iwloc=&output=embed`
   }
 
   const renderQualityBadges = (indicators) => {
@@ -56,7 +54,7 @@ export default function SimpleMap({ shops, userLocation, selectedCity }) {
         {shops.length > 0 ? (
           <div className="map-embed-container">
             <iframe
-              src={`https://maps.google.com/maps?q=${shops.map(s => `${s.coordinates[0]},${s.coordinates[1]}`).join('|')}&t=&z=12&ie=UTF8&iwloc=&output=embed`}
+              src={getGoogleMapsUrl()}
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -65,6 +63,14 @@ export default function SimpleMap({ shops, userLocation, selectedCity }) {
               referrerPolicy="no-referrer-when-downgrade"
               title="Coffee Shops Map"
             />
+            <div className="map-overlay-info">
+              <div className="map-markers-legend">
+                <span className="legend-item">📍 {shops.length} coffee shops in this area</span>
+                {shops.length > 10 && (
+                  <span className="legend-note">Showing first 10 locations on map</span>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
           <div className="no-shops-simple">
@@ -128,16 +134,28 @@ export default function SimpleMap({ shops, userLocation, selectedCity }) {
                     <div className="mini-quality-indicators">
                       {renderQualityBadges(shop.qualityIndicators)}
                     </div>
-                    <button 
-                      className="mini-directions-btn"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        const [lat, lng] = shop.coordinates
-                        window.open(`https://maps.apple.com/?q=${lat},${lng}`, '_blank')
-                      }}
-                    >
-                      Get Directions
-                    </button>
+                    <div className="mini-action-buttons">
+                      <button 
+                        className="mini-directions-btn"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const [lat, lng] = shop.coordinates
+                          window.open(`https://maps.apple.com/?q=${lat},${lng}`, '_blank')
+                        }}
+                      >
+                        Directions
+                      </button>
+                      <button 
+                        className="mini-map-btn"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const [lat, lng] = shop.coordinates
+                          window.open(`https://maps.google.com/?q=${lat},${lng}`, '_blank')
+                        }}
+                      >
+                        View on Map
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
