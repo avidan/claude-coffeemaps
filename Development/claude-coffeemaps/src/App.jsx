@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import CoffeeList from './components/CoffeeList'
-import SimpleMap from './components/SimpleMap'
+import InteractiveMap from './components/InteractiveMap'
 import CitySearch from './components/CitySearch'
+import GlobalSearch from './components/GlobalSearch'
 import { coffeeShops } from './data/coffeeShops'
 import { getDistance } from './utils/distance'
 import './App.css'
@@ -12,6 +13,13 @@ function App() {
   const [selectedCity, setSelectedCity] = useState(null)
   const [filteredShops, setFilteredShops] = useState([])
   const [locationStatus, setLocationStatus] = useState('requesting') // 'requesting', 'granted', 'denied'
+  const [allCoffeeShops, setAllCoffeeShops] = useState(coffeeShops) // Dynamic list that can be updated
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false)
+
+  // Initialize filtered shops
+  useEffect(() => {
+    setFilteredShops(allCoffeeShops)
+  }, [allCoffeeShops])
 
   // Request user location on app load
   useEffect(() => {
@@ -29,7 +37,7 @@ function App() {
           console.log('Location access denied:', error)
           setLocationStatus('denied')
           // If location denied, show all shops
-          setFilteredShops(coffeeShops)
+          setFilteredShops(allCoffeeShops)
         },
         {
           enableHighAccuracy: true,
@@ -39,15 +47,21 @@ function App() {
       )
     } else {
       setLocationStatus('denied')
-      setFilteredShops(coffeeShops)
+      setFilteredShops(allCoffeeShops)
     }
   }, [])
 
   // Filter shops when user location or selected city changes
   useEffect(() => {
     if (selectedCity) {
-      // When city is selected, show shops within 50 miles of that city
-      const cityShops = coffeeShops
+      // When city is selected, first filter by exact city name match, then by distance
+      const cityShops = allCoffeeShops
+        .filter(shop => {
+          // First check if shop is actually in the selected city
+          const shopCityNormalized = shop.city.toLowerCase().trim()
+          const selectedCityNormalized = selectedCity.name.toLowerCase().trim()
+          return shopCityNormalized === selectedCityNormalized
+        })
         .map(shop => ({
           ...shop,
           distance: getDistance(
@@ -58,13 +72,12 @@ function App() {
             'miles'
           )
         }))
-        .filter(shop => shop.distance <= 50)
         .sort((a, b) => a.distance - b.distance)
       
       setFilteredShops(cityShops)
     } else if (userLocation && locationStatus === 'granted') {
       // Show shops within 5 miles of user location
-      const nearbyShops = coffeeShops
+      const nearbyShops = allCoffeeShops
         .map(shop => ({
           ...shop,
           distance: getDistance(
@@ -80,7 +93,7 @@ function App() {
       
       setFilteredShops(nearbyShops)
     }
-  }, [userLocation, selectedCity, locationStatus])
+  }, [userLocation, selectedCity, locationStatus, allCoffeeShops])
 
   const handleCitySelect = (city) => {
     setSelectedCity(city)
@@ -90,7 +103,19 @@ function App() {
     setSelectedCity(null)
     setUserLocation(null)
     setLocationStatus('denied')
-    setFilteredShops(coffeeShops)
+    setFilteredShops(allCoffeeShops)
+  }
+
+  const handleAddCoffeeShop = (newShop) => {
+    // Add the new shop to the list
+    const updatedShops = [...allCoffeeShops, newShop]
+    setAllCoffeeShops(updatedShops)
+    
+    // Show success message (you could add a toast notification here)
+    alert(`✅ "${newShop.name}" has been added to the coffee shop database!`)
+    
+    // Close global search
+    setShowGlobalSearch(false)
   }
 
   const getHeaderMessage = () => {
@@ -129,11 +154,31 @@ function App() {
       </header>
 
       <div className="search-section">
-        <CitySearch 
-          onCitySelect={handleCitySelect}
-          selectedCity={selectedCity}
-        />
-        {(selectedCity || locationStatus === 'denied') && (
+        <div className="search-toggle-buttons">
+          <button 
+            className={`search-mode-btn ${!showGlobalSearch ? 'active' : ''}`}
+            onClick={() => setShowGlobalSearch(false)}
+          >
+            🏙️ Search Cities
+          </button>
+          <button 
+            className={`search-mode-btn ${showGlobalSearch ? 'active' : ''}`}
+            onClick={() => setShowGlobalSearch(true)}
+          >
+            🌍 Find New Shops
+          </button>
+        </div>
+
+        {!showGlobalSearch ? (
+          <CitySearch 
+            onCitySelect={handleCitySelect}
+            selectedCity={selectedCity}
+          />
+        ) : (
+          <GlobalSearch onAddCoffeeShop={handleAddCoffeeShop} />
+        )}
+
+        {(selectedCity || locationStatus === 'denied') && !showGlobalSearch && (
           <button 
             className="clear-filter-btn"
             onClick={clearLocationFilter}
@@ -145,7 +190,7 @@ function App() {
 
       <main className="app-main">
         {viewMode === 'map' ? (
-          <SimpleMap 
+          <InteractiveMap 
             shops={filteredShops} 
             userLocation={userLocation}
             selectedCity={selectedCity}

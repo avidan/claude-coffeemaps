@@ -23,14 +23,28 @@ export default function SimpleMap({ shops, userLocation, selectedCity }) {
 
   // Create Google Maps URL showing coffee shops in the area
   const getGoogleMapsUrl = () => {
+    // Always center on user location if available
+    if (userLocation && !selectedCity) {
+      // Center map on user's exact location and search for coffee shops nearby
+      const userLocationString = `${userLocation.lat},${userLocation.lng}`
+      return `https://maps.google.com/maps?q=coffee+shops+near+${userLocationString}&t=&z=13&ie=UTF8&iwloc=&output=embed`
+    }
+
     if (shops.length === 0) {
       return `https://maps.google.com/maps?q=coffee+shops+near+${centerString}&t=&z=12&ie=UTF8&iwloc=&output=embed`
     }
 
-    // Create a URL that searches for the specific coffee shops by name and location
-    const firstShop = shops[0]
-    const searchQuery = `${firstShop.name.replace(/\s+/g, '+')}+${firstShop.city.replace(/\s+/g, '+')}`
-    
+    // Create a URL that shows multiple coffee shops using coordinates
+    if (shops.length === 1) {
+      // Single shop - use name and location
+      const shop = shops[0]
+      const searchQuery = `${shop.name.replace(/\s+/g, '+')}+${shop.city.replace(/\s+/g, '+')}`
+      return `https://maps.google.com/maps?q=${searchQuery}&t=&z=12&ie=UTF8&iwloc=&output=embed`
+    }
+
+    // Multiple shops - create a search for coffee shops in the area and let Google find them
+    const city = shops[0].city
+    const searchQuery = `coffee+shops+in+${city.replace(/\s+/g, '+')}`
     return `https://maps.google.com/maps?q=${searchQuery}&t=&z=12&ie=UTF8&iwloc=&output=embed`
   }
 
